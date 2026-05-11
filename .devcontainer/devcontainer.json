@@ -1,0 +1,35 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-docker-compose
+{
+	"name": "Existing Docker Compose (Extend)",
+
+	"dockerComposeFile": [
+		"../docker-compose.yml"
+	],
+
+	"service": "app",
+
+	"workspaceFolder": "/text_to_sql",
+
+	"postCreateCommand": "pip install poetry",
+
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"googlecloudtools.cloudcode",
+				"charliermarsh.ruff"
+			],
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "bash",
+				// ターミナルのカレントディレクトリを指定
+				"terminal.integrated.cwd": "/text_to_sql"
+			}
+		}
+	},
+
+	"remoteUser": "masashi",
+
+	"updateRemoteUserUID": true
+}
