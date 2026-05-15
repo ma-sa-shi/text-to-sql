@@ -1,14 +1,17 @@
-def parse_md_to_records(file_path: str):
-    try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            md_content = f.read()
-    except FileNotFoundError:
+from pathlib import Path
+
+def parse_md_to_records(file_path: str) -> list[dict]:
+    path = Path(file_path)
+
+    if not path.exists():
         print(f"ファイルが見つかりません: {file_path}")
         return
 
+    md_content = path.read_text(encoding="utf-8")
+
     lines = md_content.strip().split("\n")
 
-    data_lines = [line for line in lines if "|" in line and "---" not in line][1:]
+    data_lines = [line for line in lines if "|" in line and "---" not in line]
 
     records = []
 
