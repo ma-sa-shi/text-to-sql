@@ -51,7 +51,7 @@ def get_unique_documents(documents: list[Document]) -> list[Document]:
     Returns:
         list[Document]: 重複のないドキュメントのリスト
     """
-    unique_docs = {doc.metadata.table_name: doc for doc in documents}
+    unique_docs = {doc.metadata.get("table_name"): doc for doc in documents}
     return list(unique_docs.values())
 
 
@@ -69,7 +69,7 @@ def refilter_with_cohere(question: str, documents: list[Document]) -> list[str]:
     selected_documents = cohere_reranker.compress_documents(
         documents=documents, query=question
     )
-    selected_table = [doc.metadata.table_name for doc in selected_documents]
+    selected_table = [doc.metadata.get("table_name") for doc in selected_documents]
 
     return selected_table
 
