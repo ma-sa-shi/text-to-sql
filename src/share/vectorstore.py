@@ -1,6 +1,7 @@
 import os
 from langchain_chroma import Chroma
 from langchain_openai import OpenAIEmbeddings
+from langchain_core.documents import Document
 
 
 def save_records_to_chroma(records, collection_name):
@@ -48,3 +49,15 @@ def get_retriever(k: int = 20):
         persist_directory=PERSIST_DIRECTORY, embedding_function=embeddings
     )
     return vectorstore.as_retriever(search_kwargs={"k": k})
+
+
+def retrieve_tables(queries: list[str]) -> list[Document]:
+    """ベクトルストアからドキュメントを検索する関数。
+    Args:
+        queries (list[str]): 検索クエリのリスト
+    Returns:
+        list[str]: 検索結果のテーブル名のリスト
+    """
+    retriever = get_retriever()
+    tables = retriever.map().invoke(queries)
+    return tables
