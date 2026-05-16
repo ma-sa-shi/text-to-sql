@@ -72,3 +72,25 @@ def refilter_with_cohere(question: str, documents: list[Document]) -> list[str]:
     selected_table = [doc.metadata.table_name for doc in selected_documents]
 
     return selected_table
+
+
+def get_context(selected_table: list[str]) -> list[str]:
+    """テーブルの詳細情報を取得する関数。
+    Args:
+        selected_table (list[str]): テーブル名のリスト
+    Returns:
+        list[str]: テーブルの詳細情報のリスト
+    """
+    docs_dir = Path("docs")
+    contexts = []
+    for table in selected_table:
+        table_file = docs_dir / f"{table}.md"
+
+        try:
+            content = table_file.read_text(encoding="utf-8")
+            contexts.append(content)
+        except FileNotFoundError:
+            print(f"ファイルが見つかりません: {table_file}")
+            contexts.append("")
+
+    return contexts
