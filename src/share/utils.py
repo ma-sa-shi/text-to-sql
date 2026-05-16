@@ -4,6 +4,11 @@ from langchain_core.documents import Document
 from langchain_cohere import CohereRerank
 
 
+def flatten_documents(nested_documents: list[list[Document]]) -> list[Document]:
+    """2次元配列のドキュメントリストを1次元に平坦化する関数。"""
+    return [doc for sublist in nested_documents for doc in sublist]
+
+
 def parse_md_to_records(file_path: str) -> list[dict]:
     """table_summaries.mdを辞書のリストに変換する関数。
     Args:
