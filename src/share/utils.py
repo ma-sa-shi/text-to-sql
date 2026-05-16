@@ -1,5 +1,7 @@
+import os
 from pathlib import Path
 from langchain_core.documents import Document
+from langchain_cohere import CohereRerank
 
 
 def parse_md_to_records(file_path: str) -> list[dict]:
@@ -51,3 +53,22 @@ def get_unique_documents(documents: list[Document]) -> list[Document]:
     """
     unique_docs = {doc.metadata.table_name: doc for doc in documents}
     return list(unique_docs.values())
+
+
+def refilter_with_cohere(question: str, documents: list[Document]) -> list[str]:
+    """cohereでrerankして5個のドキュメントに絞りテーブル名を返す関数。
+    Args:
+        question (str): ユーザーの質問
+        documents (list[Document]): ドキュメントのリスト
+    Returns:
+        list[str]: テーブル名のリスト
+    """
+    cohere_reranker = CohereRerank(
+        model=os.getenv("COHERE_MODEL_NAME", "rerank-v3.5"), top_n=5
+    )
+    selected_documents = cohere_reranker.compress_documents(
+        documents=documents, query=question
+    )
+    selected_table = [doc.metadata.table_name for doc in selected_documents]
+
+    return selected_table
