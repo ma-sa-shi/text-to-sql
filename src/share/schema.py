@@ -1,6 +1,7 @@
 from typing import Annotated, Any, TypedDict
 import operator
 from pydantic import BaseModel, Field
+from langchain_core.documents import Document
 
 
 class MultiQuery(BaseModel):
@@ -19,8 +20,10 @@ class GraphState(TypedDict):
     Attributes:
         question (str): ユーザーの質問
         queries (list[str]): LLMが生成する検索クエリのリスト
-        candidate_tables(list[str]): ベクトル検索後の候補テーブルリスト
-        selected_table_schemas (list[dict[str, Any]]): 抽出されたテーブル名と詳細情報のmdファイルの文字列の辞書のリスト
+        candidate_tables(list[Document]):
+            複数クエリでのベクトル検索結果から重複排除したドキュメントのリスト
+            Chromaから取得したDocumentがそのまま入る為、metadata["table_name"]が保持される。
+        selected_table_schemas (list[str]): 抽出されたテーブルの詳細情報(mdファイルの中身)のリスト
         generated_sql (str): LLMが生成したSQL
         error_history (list[str]): エラー履歴
         execution_result (dict[str, Any]): SQLの実行結果
@@ -30,8 +33,8 @@ class GraphState(TypedDict):
 
     question: str
     queries: list[str]
-    candidate_tables: list[str]
-    selected_table_schemas: list[dict[str, Any]]
+    candidate_tables: list[Document]
+    selected_table_schemas: list[str]
     generated_sql: str
     error_history: Annotated[list[str], operator.add]
     execution_result: dict[str, Any]
