@@ -1,6 +1,14 @@
 from pathlib import Path
+from langchain_core.documents import Document
+
 
 def parse_md_to_records(file_path: str) -> list[dict]:
+    """table_summaries.mdを辞書のリストに変換する関数。
+    Args:
+        file_path (str): table_summaries.mdのパス
+    Returns:
+        list[dict]: 辞書のリスト
+    """
     path = Path(file_path)
 
     if not path.exists():
@@ -32,3 +40,14 @@ def parse_md_to_records(file_path: str) -> list[dict]:
                 }
             )
     return records
+
+
+def get_unique_documents(documents: list[Document]) -> list[Document]:
+    """重複無しのドキュメントのリストを返す関数。
+    Args:
+        documents (list[Document]): ドキュメントのリスト
+    Returns:
+        list[Document]: 重複のないドキュメントのリスト
+    """
+    unique_docs = {doc.metadata.table_name: doc for doc in documents}
+    return list(unique_docs.values())
