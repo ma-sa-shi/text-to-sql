@@ -6,7 +6,7 @@ from share.utils import (
     refilter_with_cohere,
     get_context,
 )
-from graph.chains import generate_queries_chain
+from graph.chains import generate_queries_chain, generate_sql_chain
 
 
 def generate_queries_node(state: GraphState) -> dict:
@@ -37,3 +37,14 @@ def retrieve_and_filter_tables_node(state: GraphState) -> dict:
         "candidate_tables": unique_docs,
         "selected_table_schemas": selected_table_schemas,
     }
+
+
+def generate_sql_node(state: GraphState) -> dict:
+    """テーブル詳細情報からSQLを生成するノード"""
+    question = state.get("question")
+    selected_table_schemas = "\n\n".join(state.get("selected_table_schemas"))
+
+    generated_sql = generate_sql_chain.invoke(
+        {"question": question, "selected_table_schemas": selected_table_schemas}
+    )
+    return {"generated_sql": generated_sql}
