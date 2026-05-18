@@ -6,6 +6,7 @@ from share.utils import (
     refilter_with_cohere,
     get_context,
 )
+from share.database import execute
 from graph.chains import generate_queries_chain, generate_sql_chain
 
 
@@ -48,3 +49,17 @@ def generate_sql_node(state: GraphState) -> dict:
         {"question": question, "selected_table_schemas": selected_table_schemas}
     )
     return {"generated_sql": generated_sql}
+
+
+def execute_sql_node(state: GraphState) -> dict:
+    """SQLを実行するノード"""
+    generated_sql = state.get("generated_sql")
+    result = execute(generated_sql)
+
+    if result.get("error"):
+        return {
+            "error_history": [result.get("error")],
+            "retry_count": state.get("retry_count") + 1,
+        }
+
+    return {"execution_result": result.get("result")}
