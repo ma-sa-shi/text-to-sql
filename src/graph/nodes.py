@@ -7,7 +7,11 @@ from share.utils import (
     get_context,
 )
 from share.database import execute
-from graph.chains import generate_queries_chain, generate_sql_chain
+from graph.chains import (
+    generate_queries_chain,
+    generate_sql_chain,
+    interpret_sql_result_chain,
+)
 
 
 def generate_queries_node(state: GraphState) -> dict:
@@ -63,3 +67,13 @@ def execute_sql_node(state: GraphState) -> dict:
         }
 
     return {"execution_result": result.get("result")}
+
+
+def interpret_sql_result_node(state: GraphState) -> dict:
+    """SQL実行結果から回答を生成するノード"""
+    question = state.get("question")
+    execution_result = state.get("execution_result")
+    final_answer = interpret_sql_result_chain.invoke(
+        {"question": question, "result": execution_result}
+    )
+    return {"final_answer": final_answer}
