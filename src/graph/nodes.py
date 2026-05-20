@@ -23,7 +23,7 @@ def generate_queries_node(state: GraphState) -> dict:
 def retrieve_and_filter_tables_node(state: GraphState) -> dict:
     """クエリからテーブルを検索し、Cohereでrerankして更に絞り込みテーブルの詳細情報を取得するノード"""
     question = state.get("question")
-    queries = state("queries")
+    queries = state.get("queries")
 
     # ベクトル検索 (nested_docs: list[list[Document]])
     nested_docs = retrieve_tables(queries)
@@ -48,9 +48,16 @@ def generate_sql_node(state: GraphState) -> dict:
     """テーブル詳細情報からSQLを生成するノード"""
     question = state.get("question")
     selected_table_schemas = "\n\n".join(state.get("selected_table_schemas"))
+    error_message = state.get("error_message")
+    generated_sql = state.get("generated_sql")
 
     generated_sql = generate_sql_chain.invoke(
-        {"question": question, "selected_table_schemas": selected_table_schemas}
+        {
+            "question": question,
+            "selected_table_schemas": selected_table_schemas,
+            "error_message": error_message,
+            "generated_sql": generated_sql,
+        }
     )
     return {"generated_sql": generated_sql}
 
@@ -62,8 +69,8 @@ def execute_sql_node(state: GraphState) -> dict:
 
     if result.get("error"):
         return {
-            "error_history": [result.get("error")],
-            "retry_count": state.get("retry_count") + 1,
+            "error_message": result.get("error"),
+            "retry_count": state.get("retry_count", 0) + 1,
         }
 
     return {"execution_result": result.get("result")}
