@@ -11,6 +11,7 @@ from graph.chains import (
     generate_queries_chain,
     generate_sql_chain,
     interpret_sql_result_chain,
+    generate_failure_response_chain,
 )
 
 
@@ -82,5 +83,20 @@ def interpret_sql_result_node(state: GraphState) -> dict:
     execution_result = state.get("execution_result")
     final_answer = interpret_sql_result_chain.invoke(
         {"question": question, "result": execution_result}
+    )
+    return {"final_answer": final_answer}
+
+
+def generate_failure_response_node(state: GraphState) -> dict:
+    """SQL実行結果から失敗理由を生成するノード"""
+    question = state.get("question")
+    generated_sql = state.get("generated_sql")
+    error_message = state.get("error_message")
+    final_answer = generate_failure_response_chain.invoke(
+        {
+            "question": question,
+            "generated_sql": generated_sql,
+            "error_message": error_message,
+        }
     )
     return {"final_answer": final_answer}
