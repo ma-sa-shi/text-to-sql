@@ -1,5 +1,4 @@
-from typing import Annotated, Any, TypedDict
-import operator
+from typing import Any, TypedDict
 from pydantic import BaseModel, Field
 from langchain_core.documents import Document
 
@@ -25,7 +24,7 @@ class GraphState(TypedDict):
             Chromaから取得したDocumentがそのまま入る為、metadata["table_name"]が保持される。
         selected_table_schemas (list[str]): 抽出されたテーブルの詳細情報(mdファイルの中身)のリスト
         generated_sql (str): LLMが生成したSQL
-        error_history (list[str]): エラー履歴
+        error_message (str): エラーメッセージ
         execution_result (dict[str, Any]): SQLの実行結果
         final_answer (str): ユーザーに渡す回答
         retry_count (int): リトライ回数
@@ -36,7 +35,7 @@ class GraphState(TypedDict):
     candidate_tables: list[Document]
     selected_table_schemas: list[str]
     generated_sql: str
-    error_history: Annotated[list[str], operator.add]
+    error_message: str
     execution_result: dict[str, Any]
     final_answer: str
     retry_count: int
