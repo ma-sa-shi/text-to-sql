@@ -23,9 +23,25 @@ generate_sql_prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-interpret_sql_result = ChatPromptTemplate.from_messages(
+interpret_sql_result_prompt = ChatPromptTemplate.from_messages(
     [
         ("system", "ユーザーの質問とSQL実行結果を基に質問に対する回答を生成して"),
         ("human", "質問: {question}\n\nSQL実行結果: {result}"),
+    ]
+)
+
+generate_failure_response_prompt = ChatPromptTemplate.from_messages(
+    [
+        (
+            "system",
+            "データが取得できなかった理由を分析し、ユーザーへ返す丁寧な返答メッセージを作成して\n\n"
+            "【注意事項】\n"
+            "「〇〇のデータが見つからなかった」や「条件の指定方法が難しかった」など分かりやすく理由を説明して\n"
+            "「別のキーワードで検索する」「質問を少し具体的にしてみる」など、ユーザーが次に試せる具体的なアクションを提案して",
+        ),
+        (
+            "human",
+            "質問: {question}\n\nSQL: {generated_sql}\n\nエラーメッセージ: {error_message}",
+        ),
     ]
 )
