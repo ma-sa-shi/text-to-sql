@@ -26,16 +26,17 @@ RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH="$POETRY_HOME/bin:$PATH"
 
 # venvを作らずコンテナに直接インストールする設定
-RUN poetry config virtualenvs.create false
-
-RUN chown -R $USERNAME:$USER_GID /text_to_sql
-
-USER $USERNAME
+# (poetry config はユーザーごとの設定ファイルに書かれUSER切替後に効かないため、ENVで全ユーザーに適用する)
+ENV POETRY_VIRTUALENVS_CREATE=false
 
 # 依存関係のファイルコピー
 COPY pyproject.toml poetry.lock* ./
 
-# 依存関係のインストール
+# 依存関係のインストール(システムのsite-packagesへ書き込むためroot権限のうちに実行する)
 RUN poetry install --no-interaction --no-ansi --only main --no-root
+
+RUN chown -R $USERNAME:$USER_GID /text_to_sql
+
+USER $USERNAME
 
 COPY . .
