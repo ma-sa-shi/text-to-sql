@@ -1,4 +1,4 @@
-import os
+from share.config import settings
 from share.schema import MultiQuery
 from graph.prompts import (
     query_gen_prompt,
@@ -6,11 +6,11 @@ from graph.prompts import (
     interpret_sql_result_prompt,
     generate_failure_response_prompt,
 )
-from langchain.chat_models import ChatOpenAI
+from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers import StrOutputParser
 
 
-model = ChatOpenAI(model=os.getenv("OPENAI_MODEL_NAME", "gpt-5-nano"))
+model = ChatOpenAI(model=settings.openai_model_name)
 
 generate_queries_chain = (
     query_gen_prompt | model.with_structured_output(MultiQuery) | (lambda x: x.queries)
