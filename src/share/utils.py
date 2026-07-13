@@ -1,7 +1,7 @@
-import os
 from pathlib import Path
 from langchain_core.documents import Document
 from langchain_cohere import CohereRerank
+from share.config import settings, DOCS_DIR
 
 
 def flatten_documents(nested_documents: list[list[Document]]) -> list[Document]:
@@ -61,7 +61,7 @@ def get_unique_documents(documents: list[Document]) -> list[Document]:
 
 
 def refilter_with_cohere(question: str, documents: list[Document]) -> list[str]:
-    """cohereでrerankして5個のドキュメントに絞りテーブル名を返す関数。
+    """cohereでrerankして環境変数COHERE_RERANK_TOP_N件のドキュメントに絞りテーブル名を返す関数。
     Args:
         question (str): ユーザーの質問
         documents (list[Document]): ドキュメントのリスト
@@ -69,8 +69,9 @@ def refilter_with_cohere(question: str, documents: list[Document]) -> list[str]:
         list[str]: テーブル名のリスト
     """
     cohere_reranker = CohereRerank(
-        model=os.getenv("COHERE_MODEL_NAME", "rerank-v3.5"), top_n=5
+        model=settings.cohere_model_name, top_n=settings.cohere_rerank_top_n
     )
+    # documents.page_contentとquestionの意味的関連性をスコアリングし、上位COHERE_RERANK_TOP_N件のドキュメントを返す
     selected_documents = cohere_reranker.compress_documents(
         documents=documents, query=question
     )
@@ -86,10 +87,9 @@ def get_context(selected_table: list[str]) -> list[str]:
     Returns:
         list[str]: テーブルの詳細情報のリスト
     """
-    docs_dir = Path("docs")
     contexts = []
     for table in selected_table:
-        table_file = docs_dir / f"{table}.md"
+        table_file = DOCS_DIR / f"{table}.md"
 
         try:
             content = table_file.read_text(encoding="utf-8")
